@@ -29,7 +29,10 @@ const App = () => {
   }
 
   const handleNext = () => {
-    const newIndex = getRandomInRange(0, anecdotes.length)
+    const newIndex = selected
+    while (newIndex === selected) {
+      newIndex = getRandomInRange(0, anecdotes.length)
+    }
     setSelected(newIndex)
   }
 
@@ -47,7 +50,7 @@ const App = () => {
 
   return (
     <div>
-      <h1>Anecdote of the day</h1>
+      <h2>Anecdote of the day</h1>
       <Anecdote
         anecdote={anecdotes[selected]}
         votes={votes[selected]}
@@ -55,7 +58,7 @@ const App = () => {
       <button onClick={handleVote}>vote</button>
       <button onClick={handleNext}>next anecdote</button>
 
-      <h1>Anecdote with most votes</h1>
+      <h2>Anecdote with most votes</h1>
       <Anecdote
         anecdote={anecdotes[mostPopular]}
         votes={votes[mostPopular]}
