@@ -11,8 +11,12 @@ const Filter = ({ filter, handleFilterChange }) => {
 const PersonForm = (props) => {
   return (
     <form onSubmit={props.handleAddContact}>
-      <div>name: <input value={props.newName} onChange={props.handleNameChange}/></div>
-      <div>number: <input value={props.newNumber} onChange={props.handleNumberChange}/></div>
+      <div>name:
+        <input value={props.newName} onChange={props.handleNameChange}/>
+      </div>
+      <div>number:
+        <input value={props.newNumber} onChange={props.handleNumberChange}/>
+      </div>
       <div>
         <button type="submit">add</button>
       </div>
@@ -48,11 +52,14 @@ const App = () => {
   const handleNameChange = (event) => setNewName(event.target.value)
   const handleNumberChange = (event) => setNumber(event.target.value)
   const handleFilterChange = (event) => setFilter(event.target.value)
+
   const handleAddContact = (event) => {
     event.preventDefault()
+
     if (persons.find(({ name }) => name === newName)) {
       return alert(`${newName} is already added to phonebook`)
     }
+
     setPersons(persons.concat({ name: newName, number: newNumber }))
     setNewName('')
     setNumber('')
