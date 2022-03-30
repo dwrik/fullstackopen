@@ -1,5 +1,5 @@
 {
-  "name": "phonebook",
+  "name": "countries",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -16,8 +16,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "server": "json-server --port 3001 --watch db.json"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
@@ -36,8 +35,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "json-server": "^0.17.0"
   }
 }

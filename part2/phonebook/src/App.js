@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
 
 const Filter = ({ filter, handleFilterChange }) => {
   return (
     <div>
-      filter shown with <input value={filter} onChange={handleFilterChange}/>
+      filter shown with <input value={filter} onChange={handleFilterChange} />
     </div>
   )
 }
@@ -12,10 +13,10 @@ const PersonForm = (props) => {
   return (
     <form onSubmit={props.handleAddContact}>
       <div>name:
-        <input value={props.newName} onChange={props.handleNameChange}/>
+        <input value={props.newName} onChange={props.handleNameChange} />
       </div>
       <div>number:
-        <input value={props.newNumber} onChange={props.handleNumberChange}/>
+        <input value={props.newNumber} onChange={props.handleNumberChange} />
       </div>
       <div>
         <button type="submit">add</button>
@@ -32,22 +33,23 @@ const Persons = ({ persons }) => {
   return (
     <div>
       {persons.map(({ name, number }) => {
-        return <Person key={name} name={name} number={number}/>
+        return <Person key={name} name={name} number={number} />
       })}
     </div>
   )
 }
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ])
+  const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNumber] = useState('')
   const [filter, setFilter] = useState('')
+
+  useEffect(() => {
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => setPersons(response.data))
+  }, [])
 
   const handleNameChange = (event) => setNewName(event.target.value)
   const handleNumberChange = (event) => setNumber(event.target.value)
@@ -72,7 +74,7 @@ const App = () => {
   return (
     <div>
       <h1>Phonebook</h1>
-      <Filter filter={filter} handleFilterChange={handleFilterChange}/>
+      <Filter filter={filter} handleFilterChange={handleFilterChange} />
       <h2>Add a new</h2>
       <PersonForm
         newName={newName}
@@ -82,7 +84,7 @@ const App = () => {
         handleAddContact={handleAddContact}
       />
       <h2>Numbers</h2>
-      <Persons persons={personsToShow}/>
+      <Persons persons={personsToShow} />
     </div>
   )
 }
