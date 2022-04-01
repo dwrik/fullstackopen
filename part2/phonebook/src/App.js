@@ -1,70 +1,80 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
-
-const Filter = ({ filter, handleFilterChange }) => {
-  return (
-    <div>
-      filter shown with <input value={filter} onChange={handleFilterChange} />
-    </div>
-  )
-}
-
-const PersonForm = (props) => {
-  return (
-    <form onSubmit={props.handleAddContact}>
-      <div>name:
-        <input value={props.newName} onChange={props.handleNameChange} />
-      </div>
-      <div>number:
-        <input value={props.newNumber} onChange={props.handleNumberChange} />
-      </div>
-      <div>
-        <button type="submit">add</button>
-      </div>
-    </form>
-  )
-}
-
-const Person = ({ name, number }) => {
-  return <div>{name} {number}</div>
-}
-
-const Persons = ({ persons }) => {
-  return (
-    <div>
-      {persons.map(({ name, number }) => {
-        return <Person key={name} name={name} number={number} />
-      })}
-    </div>
-  )
-}
+import personsService from './services/Persons'
+import PersonForm from './components/PersonForm'
+import Persons from './components/Persons'
+import Filter from './components/Filter'
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
-  const [newNumber, setNumber] = useState('')
+  const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
 
-  useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => setPersons(response.data))
-  }, [])
-
   const handleNameChange = (event) => setNewName(event.target.value)
-  const handleNumberChange = (event) => setNumber(event.target.value)
+  const handleNumberChange = (event) => setNewNumber(event.target.value)
   const handleFilterChange = (event) => setFilter(event.target.value)
 
-  const handleAddContact = (event) => {
+  useEffect(() => {
+    personsService
+      .getAll()
+      .then(persons => setPersons(persons))
+      .catch(error => alert('unable to get data of persons'))
+  }, [])
+
+  const addPerson = (newPerson) => {
+    personsService
+      .addPerson(newPerson)
+      .then(newPerson => {
+        setPersons(persons.concat(newPerson))
+        setNewName('')
+        setNewNumber('')
+      })
+      .catch(error => {
+        alert(`the person '${newPerson.name}' could not be added`)
+      })
+  }
+
+  const updatePerson = (updatedPerson) => {
+    personsService
+      .updatePerson(updatedPerson)
+      .then(updated => {
+        setPersons(persons.map(person => person.id !== updated.id ? person : updated))
+        setNewName('')
+        setNewNumber('')
+      })
+      .catch(error => {
+        alert(`the person '${updatedPerson.name}' was already deleted`)
+        setPersons(persons.filter(person => person.id !== updatedPerson.id))
+        setNewName('')
+        setNewNumber('')
+      })
+  }
+
+  const handleSubmit = (event) => {
     event.preventDefault()
-
-    if (persons.find(({ name }) => name === newName)) {
-      return alert(`${newName} is already added to phonebook`)
+    const updatePrompt = 'is already added to phonebook, replace old number with the new one?'
+    const existing = persons.find(person => person.name === newName)
+    if (existing) {
+      if (window.confirm(`${existing.name} ${updatePrompt}`)) {
+        updatePerson({ ...existing, number: newNumber })
+      }
+    } else {
+      addPerson({ name: newName, number: newNumber })
     }
+  }
 
-    setPersons(persons.concat({ name: newName, number: newNumber }))
-    setNewName('')
-    setNumber('')
+
+  const handleDeletePerson = (id) => {
+    const person = persons.find((person) => person.id === id)
+    if (window.confirm(`Delete ${person.name} ?`)) {
+      personsService
+        .deletePerson(id)
+        .then(() => setPersons(persons.filter(person => person.id !== id)))
+        .catch(error => {
+          alert(`${person.name} was already deleted`)
+          setPersons(persons.filter(person => person.id !== id))
+        })
+    }
   }
 
   const personsToShow = filter === ''
@@ -81,10 +91,13 @@ const App = () => {
         newNumber={newNumber}
         handleNameChange={handleNameChange}
         handleNumberChange={handleNumberChange}
-        handleAddContact={handleAddContact}
+        handleSubmit={handleSubmit}
       />
       <h2>Numbers</h2>
-      <Persons persons={personsToShow} />
+      <Persons
+        persons={personsToShow}
+        handleDeletePerson={handleDeletePerson}
+      />
     </div>
   )
 }
