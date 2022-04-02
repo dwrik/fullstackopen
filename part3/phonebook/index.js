@@ -1,9 +1,12 @@
 const express = require('express')
 const morgan = require('morgan')
+const cors = require('cors')
 
 const app = express()
 
+app.use(cors())
 app.use(express.json())
+
 morgan.token('body', (request, response) => JSON.stringify(request.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
@@ -56,25 +59,21 @@ app.delete('/api/persons/:id', (request, response) => {
 
 app.post('/api/persons', (request, response) => {
   const data = request.body
-
   if (!data.name || !data.number) {
     return response.status(400).send({
       error: 'name or number missing'
     })
   }
-
   if (persons.find(person => person.name.toLowerCase() === data.name.toLowerCase())) {
     return response.status(400).send({
       error: 'name must be unique'
     })
   }
-
   const person = {
     id: generateId(),
     name: data.name,
     number: data.number,
   }
-
   persons = persons.concat(person)
   response.send(person)
 })
@@ -83,7 +82,7 @@ app.get('/info', (request, response) => {
   response.send(`<p>Phonebook has info for ${persons.length} people<p>${new Date()}`)
 })
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`)
 })
