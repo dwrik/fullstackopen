@@ -25,7 +25,7 @@ const App = () => {
     personsService
       .getAll()
       .then(persons => setPersons(persons))
-      .catch(error => notify({ message: 'Failed to get data', type: 'error' }))
+      .catch(error => notify({ message: error.response.data.error, type: 'error' }))
   }, [])
 
   const handleDeletePerson = (id) => {
@@ -43,7 +43,7 @@ const App = () => {
         .catch(error => {
           setPersons(persons.filter(person => person.id !== id))
           notify({
-            message: `Information of '${person.name}' has already been removed from the server`,
+            message: error.response.data.error,
             type: 'error',
           })
         })
@@ -64,7 +64,7 @@ const App = () => {
       })
       .catch(error => {
         notify({
-          message: `Failed to add '${newPerson.name}'`,
+          message: error.response.data.error,
           type: 'error'
         })
       })
@@ -83,11 +83,13 @@ const App = () => {
         })
       })
       .catch(error => {
-        setPersons(persons.filter(person => person.id !== updatedPerson.id))
-        setNewName('')
-        setNewNumber('')
+        if (error.response.statusCode === 404) {
+          setPersons(persons.filter(person => person.id !== updatedPerson.id))
+          setNewName('')
+          setNewNumber('')
+        }
         notify({
-          message: `Information of '${updatedPerson.name}' has already been removed from the server`,
+          message: error.response.data.error,
           type: 'error',
         })
       })

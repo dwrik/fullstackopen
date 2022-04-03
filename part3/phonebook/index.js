@@ -3,7 +3,6 @@ const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
 const Person = require('./models/Person')
-const { response } = require('express')
 
 const app = express()
 
@@ -29,7 +28,7 @@ app.get('/api/persons/:id', (request, response, next) => {
       if (person) {
         response.json(person)
       } else {
-        response.status(404).end()
+        response.status(404).send({ error: 'person not found' })
       }
     })
     .catch(error => next(error))
@@ -38,12 +37,12 @@ app.get('/api/persons/:id', (request, response, next) => {
 app.put('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
   const person = request.body
-  Person.findByIdAndUpdate(id, person, { new: true })
+  Person.findByIdAndUpdate(id, person, { new: true, runValidators: true })
     .then(updatedPerson => {
       if (updatedPerson) {
         response.json(updatedPerson)
       } else {
-        response.status(404).end()
+        response.status(404).send({ error: 'person not found' })
       }
     })
     .catch(error => next(error))
@@ -56,7 +55,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
       if (result) {
         response.status(204).end()
       } else {
-        response.status(404).end()
+        response.status(404).send({ error: 'person not found' })
       }
     })
     .catch(error => {
@@ -64,17 +63,14 @@ app.delete('/api/persons/:id', (request, response, next) => {
     })
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   const { name, number } = request.body
-  if (!name || !number) {
-    return response.status(400).send({
-      error: 'name or number missing'
-    })
-  }
   const person = new Person ({ name, number })
-  person.save().then(savedPerson => {
-    response.json(savedPerson)
-  })
+  person.save()
+    .then(savedPerson => {
+      response.json(savedPerson)
+    })
+    .catch(error => next(error))
 })
 
 app.get('/info', (request, response) => {
@@ -91,6 +87,8 @@ const errorHandler = (error, request, response, next) => {
   console.log(error.message)
   if (error.name === 'CastError') {
     return response.status(400).json({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
   }
   next(error)
 }
