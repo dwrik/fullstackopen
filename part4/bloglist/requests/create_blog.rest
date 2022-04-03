@@ -1,0 +1,20 @@
+POST http://localhost:3001/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Shortest Path",
+  "author": "Edgar Djikstra",
+  "url": "http://randomblog.com/djik-shortest-path",
+  "likes": 12
+}
+
+###
+POST http://localhost:3001/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Minimum Spanning Tree",
+  "author": "Kruskal",
+  "url": "http://randomblog.com/krus-mst",
+  "likes": 5
+}
