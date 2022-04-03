@@ -1,7 +1,17 @@
+### create person with valid data
 POST http://localhost:3001/api/persons
 Content-Type: application/json
 
 {
   "name": "Kick Buttowski",
+  "number": "231-2824613"
+}
+
+### create person with invalid data
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+  "name": "",
   "number": "231-2824613"
 }

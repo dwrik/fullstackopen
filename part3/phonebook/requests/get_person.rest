@@ -1,0 +1,8 @@
+### get person with valid id
+GET http://localhost:3001/api/persons/624889d140b643251b01f8f6
+
+### get person with non existent id
+GET http://localhost:3001/api/persons/624889d140b643251b01f8f7
+
+### get person with invalid id
+GET http://localhost:3001/api/persons/1

@@ -1,1 +1,8 @@
+### delete with valid id
+DELETE http://localhost:3001/api/persons/6249629e6664093e55847598
+
+### delete with non existent id
+DELETE http://localhost:3001/api/persons/6249629e6664093e55847599
+
+### delete with invalid id
 DELETE http://localhost:3001/api/persons/3

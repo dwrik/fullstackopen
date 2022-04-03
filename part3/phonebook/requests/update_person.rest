@@ -1,0 +1,26 @@
+### update with valid id
+PUT http://localhost:3001/api/persons/624889d140b643251b01f8f6
+Content-Type: application/json
+
+{
+  "name": "Anna",
+  "number": "041-024245"
+}
+
+### update with non existent id
+PUT http://localhost:3001/api/persons/624889d140b643251b01f8f7
+Content-Type: application/json
+
+{
+  "name": "Anna",
+  "number": "041-024245"
+}
+
+### update with malformed id
+PUT http://localhost:3001/api/persons/1
+Content-Type: application/json
+
+{
+  "name": "Anna",
+  "number": "041-024245"
+}
