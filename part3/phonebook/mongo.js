@@ -21,9 +21,9 @@ if (password) {
       if (!name || !number) {
         Person
           .find({})
-          .then(results => {
+          .then((results) => {
             console.log('phonebook:')
-            results.forEach(person => {
+            results.forEach((person) => {
               console.log(`${person.name} ${person.number}`)
             })
             // close connection
@@ -33,16 +33,16 @@ if (password) {
         const newPerson = new Person({ name, number })
         newPerson
           .save()
-          .then(saved => {
+          .then((saved) => {
             console.log(`added ${saved.name} number ${saved.number} to phonebook`)
             // close connection
             mongoose.connection.close()
           })
       }
     })
-    .catch(error => {
+    .catch((error) => {
       console.error('error: unable to connect to database!')
     })
 } else {
-  console.log('error: please provide database password!');
+  console.log('error: please provide database password!')
 }

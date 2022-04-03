@@ -15,62 +15,62 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 
 app.get('/api/persons', (request, response, next) => {
   Person.find({})
-    .then(persons => {
+    .then((persons) => {
       response.json(persons)
     })
-    .catch(error => next(error))
+    .catch((error) => next(error))
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
-  const id = request.params.id
+  const { id } = request.params
   Person.findById(id)
-    .then(person => {
+    .then((person) => {
       if (person) {
         response.json(person)
       } else {
         response.status(404).send({ error: 'person not found' })
       }
     })
-    .catch(error => next(error))
+    .catch((error) => next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
-  const id = request.params.id
+  const { id } = request.params
   const person = request.body
   Person.findByIdAndUpdate(id, person, { new: true, runValidators: true })
-    .then(updatedPerson => {
+    .then((updatedPerson) => {
       if (updatedPerson) {
         response.json(updatedPerson)
       } else {
         response.status(404).send({ error: 'person not found' })
       }
     })
-    .catch(error => next(error))
+    .catch((error) => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
-  const id = request.params.id
+  const { id } = request.params
   Person.findByIdAndDelete(id)
-    .then(result => {
+    .then((result) => {
       if (result) {
         response.status(204).end()
       } else {
         response.status(404).send({ error: 'person not found' })
       }
     })
-    .catch(error => {
+    .catch((error) => {
       next(error)
     })
 })
 
 app.post('/api/persons', (request, response, next) => {
   const { name, number } = request.body
-  const person = new Person ({ name, number })
+  const person = new Person({ name, number })
   person.save()
-    .then(savedPerson => {
+    .then((savedPerson) => {
       response.json(savedPerson)
     })
-    .catch(error => next(error))
+    .catch((error) => next(error))
 })
 
 app.get('/info', (request, response) => {
@@ -87,7 +87,7 @@ const errorHandler = (error, request, response, next) => {
   console.log(error.message)
   if (error.name === 'CastError') {
     return response.status(400).json({ error: 'malformatted id' })
-  } else if (error.name === 'ValidationError') {
+  } if (error.name === 'ValidationError') {
     return response.status(400).json({ error: error.message })
   }
   next(error)
@@ -96,7 +96,7 @@ const errorHandler = (error, request, response, next) => {
 app.use(unknownEndpoint)
 app.use(errorHandler)
 
-const PORT = process.env.PORT
+const { PORT } = process.env
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`)
 })
