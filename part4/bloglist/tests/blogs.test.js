@@ -144,6 +144,9 @@ describe('updating a blog', () => {
 
     const blogsAtEnd = await helper.blogsInDB()
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+
+    const titles = blogsAtEnd.map(blog => blog.title)
+    expect(titles).not.toContain(updatedBlog.title)
   })
 })
 
