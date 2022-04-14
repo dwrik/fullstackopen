@@ -2,13 +2,26 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const helper = require('./blogs_helper')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const app = require('../app')
 
 const api = supertest(app)
 
+const user = {
+  username: 'wturner',
+  password: 'bootstrap',
+}
+
 beforeEach(async () => {
   await Blog.deleteMany({})
   await Blog.insertMany(helper.initialBlogs)
+  await User.deleteMany({})
+
+  await api
+    .post('/api/users')
+    .send(user)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
 })
 
 describe('when there is initially some blogs saved', () => {
@@ -32,6 +45,16 @@ describe('when there is initially some blogs saved', () => {
 })
 
 describe('creation of a new blog', () => {
+  beforeEach(async () => {
+    const response = await api
+      .post('/api/login')
+      .send(user)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    user.token = response.body.token
+  })
+
   test('succeeds with valid data', async () => {
     const newBlog = {
       title: 'Demo Blog',
@@ -43,6 +66,7 @@ describe('creation of a new blog', () => {
     await api
       .post('/api/blogs')
       .send(newBlog)
+      .set('Authorization', `Bearer ${user.token}`)
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
@@ -63,6 +87,7 @@ describe('creation of a new blog', () => {
     const response = await api
       .post('/api/blogs')
       .send(newBlog)
+      .set('Authorization', `Bearer ${user.token}`)
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
@@ -73,6 +98,30 @@ describe('creation of a new blog', () => {
     expect(savedBlog.likes).toBe(0)
   })
 
+  test('fails when authentication token is invalid or missing', async () => {
+    const newBlog = {
+      title: 'Demo Blog',
+      author: 'John Doe',
+      url: 'https://demoblog.com/demo-blog',
+      likes: 3,
+    }
+
+    const blogsAtStart = await helper.blogsInDB()
+
+    const response = await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .set('Authorization', `Bearer ${user.token}asdfjk`)
+      .expect(401)
+      .expect('Content-Type', /application\/json/)
+
+    expect(response.body.error).toContain('token invalid or missing')
+
+    const blogsAtEnd = await helper.blogsInDB()
+    expect(blogsAtEnd).toEqual(blogsAtStart)
+  })
+
+
   test('fails with status code 400 when title or url missing', async () => {
     const newBlog = {
       author: 'John Doe',
@@ -81,6 +130,7 @@ describe('creation of a new blog', () => {
     await api
       .post('/api/blogs')
       .send(newBlog)
+      .set('Authorization', `Bearer ${user.token}`)
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
