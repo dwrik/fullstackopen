@@ -8,19 +8,13 @@ const requestLogger = (request, response, next) => {
   next()
 }
 
-const tokenExtractor = (request, response, next) => {
+const userExtractor = async (request, response, next) => {
   const authorization = request.get('authorization')
   if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
-    request.token = authorization.substring(7)
-  }
-  next()
-}
-
-const userExtractor = async (request, response, next) => {
-  const decodedToken = jwt.verify(request.token, config.SECRET)
-  const user = await User.findById(decodedToken.id)
-  if (user) {
-    request.user = user
+    const decodedToken = jwt.verify(authorization.substring(7), config.SECRET)
+    if (decodedToken) {
+      request.user = await User.findById(decodedToken.id)
+    }
   }
   next()
 }
@@ -45,7 +39,6 @@ const errorHandler = (error, request, response, next) => {
 
 module.exports = {
   requestLogger,
-  tokenExtractor,
   userExtractor,
   unknownEndpoint,
   errorHandler,
